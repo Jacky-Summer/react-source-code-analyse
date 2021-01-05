@@ -12,7 +12,7 @@ import {
   REACT_PROFILER_TYPE,
   REACT_STRICT_MODE_TYPE,
   REACT_SUSPENSE_TYPE,
-} from 'shared/ReactSymbols';
+} from 'shared/ReactSymbols'; // React 提供的占位符，都是 Symbol，在React实际检测到他们的时候会做一些特殊的处理
 
 import {Component, PureComponent} from './ReactBaseClasses';
 import {createRef} from './ReactCreateRef';

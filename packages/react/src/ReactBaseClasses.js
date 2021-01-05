@@ -10,6 +10,10 @@ import lowPriorityWarning from 'shared/lowPriorityWarning';
 
 import ReactNoopUpdateQueue from './ReactNoopUpdateQueue';
 
+/**
+ * 该文件包含两个基本组件，分别为 Component 及 PureComponent
+ */
+
 const emptyObject = {};
 if (__DEV__) {
   Object.freeze(emptyObject);
@@ -55,6 +59,7 @@ Component.prototype.isReactComponent = {};
  * @final
  * @protected
  */
+// 在组件中调用 setState 其实就是调用到这里了
 Component.prototype.setState = function(partialState, callback) {
   invariant(
     typeof partialState === 'object' ||
@@ -63,6 +68,7 @@ Component.prototype.setState = function(partialState, callback) {
     'setState(...): takes an object of state variables to update or a ' +
       'function which returns an object of state variables.',
   );
+  // 其实就调用了 updater 里的方法
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
 };
 
@@ -128,6 +134,7 @@ ComponentDummy.prototype = Component.prototype;
 /**
  * Convenience component with default shallow equality check for sCU.
  */
+// PureComponent 继承自 Component
 function PureComponent(props, context, updater) {
   this.props = props;
   this.context = context;
@@ -140,6 +147,6 @@ const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
 pureComponentPrototype.constructor = PureComponent;
 // Avoid an extra prototype jump for these methods.
 Object.assign(pureComponentPrototype, Component.prototype);
-pureComponentPrototype.isPureReactComponent = true;
+pureComponentPrototype.isPureReactComponent = true; // 通过这个变量区别下普通的 Component
 
 export {Component, PureComponent};
