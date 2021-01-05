@@ -40,6 +40,7 @@ export function createContext<T>(
     // there to be two concurrent renderers at most: React Native (primary) and
     // Fabric (secondary); React DOM (primary) and React ART (secondary).
     // Secondary renderers store their context values on separate fields.
+    // 以下两个属性是为了适配多平台
     _currentValue: defaultValue,
     _currentValue2: defaultValue,
     // Used to track how many concurrent renderers this context currently
@@ -49,7 +50,7 @@ export function createContext<T>(
     Provider: (null: any),
     Consumer: (null: any),
   };
-
+  // 在 context 上挂载 Provider 和 Consumer，让外部去使用
   context.Provider = {
     $$typeof: REACT_PROVIDER_TYPE,
     _context: context,
