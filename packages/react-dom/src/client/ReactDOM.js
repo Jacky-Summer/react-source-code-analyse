@@ -374,16 +374,20 @@ ReactRoot.prototype.render = function(
   children: ReactNodeList,
   callback: ?() => mixed,
 ): Work {
+  // 这里指 FiberRoot
   const root = this._internalRoot;
+  // ReactWork 的功能就是为了在组件渲染或更新后把所有传入
+  // ReactDom.render 中的回调函数全部执行一遍
   const work = new ReactWork();
   callback = callback === undefined ? null : callback;
   if (__DEV__) {
     warnOnInvalidCallback(callback, 'render');
   }
   if (callback !== null) {
+    // 如果有 callback，就 push 进 work 中的数组
     work.then(callback);
   }
-  updateContainer(children, root, null, work._onCommit);
+  updateContainer(children, root, null, work._onCommit); // work._onCommit 就是用于执行所有回调函数的
   return work;
 };
 ReactRoot.prototype.unmount = function(callback: ?() => mixed): Work {
@@ -502,6 +506,8 @@ function legacyCreateRootFromDOMContainer(
   if (!shouldHydrate) {
     let warned = false;
     let rootSibling;
+    // 一般写的 container：<div id='root'></div>
+    // container 内部不要写任何的节点，一是会被清掉，二是还要进行 DOM 操作，可能还会涉及到重绘回流等等
     while ((rootSibling = container.lastChild)) {
       if (__DEV__) {
         if (
@@ -533,15 +539,15 @@ function legacyCreateRootFromDOMContainer(
     }
   }
   // Legacy roots are not async by default.
-  const isConcurrent = false;
-  return new ReactRoot(container, isConcurrent, shouldHydrate);
+  const isConcurrent = false; // 默认不需要异步
+  return new ReactRoot(container, isConcurrent, shouldHydrate); // 创建ReactRoot对象，然后调用他的render方法
 }
 
 function legacyRenderSubtreeIntoContainer(
   parentComponent: ?React$Component<any, any>,
   children: ReactNodeList,
   container: DOMContainer,
-  forceHydrate: boolean,
+  forceHydrate: boolean, // 表明是否为服务端渲染
   callback: ?Function,
 ) {
   if (__DEV__) {
@@ -553,6 +559,7 @@ function legacyRenderSubtreeIntoContainer(
   let root: Root = (container._reactRootContainer: any);
   if (!root) {
     // Initial mount
+    // 创建一个 root 出来，类型是 ReactRoot
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
@@ -565,14 +572,18 @@ function legacyRenderSubtreeIntoContainer(
       };
     }
     // Initial mount should not be batched.
+    // 批量更新
     unbatchedUpdates(() => {
+      // 创建 root 的时候不存在 parentComponent，所以也跳过了；除非在 root 上使用 context
       if (parentComponent != null) {
+        // 一般不会出现
         root.legacy_renderSubtreeIntoContainer(
           parentComponent,
           children,
           callback,
         );
       } else {
+        // 调用的是 ReactRoot.prototype.render
         root.render(children, callback);
       }
     });
@@ -665,11 +676,12 @@ const ReactDOM: Object = {
       null,
       element,
       container,
-      true,
+      true, // 服务端渲染为true
       callback,
     );
   },
 
+  // hydrate 与 render 函数唯一的区别就是 legacyRenderSubtreeIntoContainer传的第四个参数(forceHydrate)
   render(
     element: React$Element<any>,
     container: DOMContainer,
@@ -692,7 +704,7 @@ const ReactDOM: Object = {
       null,
       element,
       container,
-      false,
+      false, // 调用 render 函数的话这个值永远为 false
       callback,
     );
   },

@@ -136,7 +136,7 @@ function scheduleRootUpdate(
     }
   }
 
-  const update = createUpdate(expirationTime);
+  const update = createUpdate(expirationTime); // 生成一个 update 的对象
   // Caution: React DevTools currently depends on this property
   // being called "element".
   update.payload = {element};
@@ -154,7 +154,7 @@ function scheduleRootUpdate(
 
   flushPassiveEffects();
   enqueueUpdate(current, update);
-  scheduleWork(current, expirationTime);
+  scheduleWork(current, expirationTime); //
 
   return expirationTime;
 }
@@ -277,7 +277,7 @@ export function createContainer(
   isConcurrent: boolean,
   hydrate: boolean,
 ): OpaqueRoot {
-  return createFiberRoot(containerInfo, isConcurrent, hydrate);
+  return createFiberRoot(containerInfo, isConcurrent, hydrate); // 创建FiberRoot
 }
 
 export function updateContainer(
@@ -288,7 +288,7 @@ export function updateContainer(
 ): ExpirationTime {
   const current = container.current;
   const currentTime = requestCurrentTime();
-  const expirationTime = computeExpirationForFiber(currentTime, current);
+  const expirationTime = computeExpirationForFiber(currentTime, current); // 此次更新的超时时间
   return updateContainerAtExpirationTime(
     element,
     container,
